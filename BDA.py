@@ -1,3 +1,9 @@
+# encoding=utf-8
+"""
+    Created on 9:52 2018/11/14 
+    @author: Jindong Wang
+"""
+
 import numpy as np
 import scipy.io
 import scipy.linalg
