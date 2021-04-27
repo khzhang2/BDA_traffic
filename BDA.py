@@ -2,6 +2,7 @@
 """
     Created on 9:52 2018/11/14 
     @author: Jindong Wang
+    Forked from https://github.com/jindongwang/transferlearning/tree/master/code/traditional/BDA 
 """
 
 import numpy as np
