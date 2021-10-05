@@ -5,6 +5,7 @@ import random
 
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 
 class traff_net(nn.Module):
@@ -27,12 +28,10 @@ class traff_net(nn.Module):
         # output: (batchsize, seq_len, hid_dim)
         # ipdb.set_trace()
         y = self.lstm(x)[0]  # y, (h, c) = self.rnn(x)
-        
         y = nn.Flatten()(y)
-        
         y = self.fc(y)  # fully connected layer
-        
-        return y[:, :]
+        y = F.log_softmax(y, dim=1)
+        return y
 
 
 def mape_loss_func(preds, labels, m):
