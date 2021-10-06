@@ -8,30 +8,7 @@ from torch import nn
 import torch.nn.functional as F
 
 
-class traff_net(nn.Module):
-    def __init__(self, inp_dim, out_dim, hid_dim=12, layers=3):
-        super(traff_net, self).__init__()
 
-        self.out_dim = out_dim
-        
-        self.lstm = nn.LSTM(inp_dim, hid_dim, layers, dropout=0.3, batch_first=True)
-        
-        self.fc = nn.Sequential(
-            nn.ReLU(),
-            nn.Linear(hid_dim*12, hid_dim*2),  # 12 means seq_len
-            nn.ReLU(),
-            nn.Linear(hid_dim*2, out_dim)
-        )  # regression
-    
-    def forward(self, x):
-        # input: (batchsize, seq_len, input_dim)
-        # output: (batchsize, seq_len, hid_dim)
-        # ipdb.set_trace()
-        y = self.lstm(x)[0]  # y, (h, c) = self.rnn(x)
-        y = nn.Flatten()(y)
-        y = self.fc(y)  # fully connected layer
-        y = F.log_softmax(y, dim=1)
-        return y
 
 
 def mape_loss_func(preds, labels, m):
@@ -57,25 +34,29 @@ def eliminate_nan(b):
 
 
 def get_class(v):
-    # v is 1-d array
+    # v is 1-d or 2-d array
     # we set that there are 100 classes between 0 and 1
-    # try:
-    v = np.array(v)
-    v_cls = []
-    for i in v:
-        v_cls.append( int(np.floor(i*100)) )
-    return np.array(v_cls)
-    # except:
+    if len(v.shape) == 1:
+        try:
+            v = v.reshape(-1, v.shape[0])
+        except:
+            v = v.view(-1, v.shape[0])
+
+    try:
+        v = np.array(v)
+        v_cls = np.zeros_like(v)
+        for i in range(v.shape[0]):
+            for j in range(v.shape[1]):
+                v_cls[i, j] = int(np.floor(v[i, j]*100))//1
+        return v_cls
+    except:
     #     None
-        # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        # if device.type == 'cpu':
-        #     v = v.detach().numpy()
-        # else:
-        #     v = v.cpu().detach().numpy()
-        # v_cls = []
-        # for i in v:
-        #     v_cls.append( int(np.floor(i*100)) )
-        # return torch.tensor(v_cls, dtype=torch.float32).to(device)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        v_cls = torch.zeros_like(v)
+        for i in range(v.shape[0]):
+            for j in range(v.shape[1]):
+                v_cls[i, j] = int(torch.floor(v[i, j]*100))//1
+        return v_cls
 
 
 def normalize2D(V):
