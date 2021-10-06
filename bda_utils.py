@@ -56,6 +56,28 @@ def eliminate_nan(b):
     return c
 
 
+def get_class(v):
+    # v is 1-d array
+    # we set that there are 100 classes between 0 and 1
+    # try:
+    v = np.array(v)
+    v_cls = []
+    for i in v:
+        v_cls.append( int(np.floor(i*100)) )
+    return np.array(v_cls)
+    # except:
+    #     None
+        # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # if device.type == 'cpu':
+        #     v = v.detach().numpy()
+        # else:
+        #     v = v.cpu().detach().numpy()
+        # v_cls = []
+        # for i in v:
+        #     v_cls.append( int(np.floor(i*100)) )
+        # return torch.tensor(v_cls, dtype=torch.float32).to(device)
+
+
 def normalize2D(V):
     V = np.array(V)
     return ( V - V.min(0) ) / ( V.max(0) - V.min(0) ), V.min(0), V.max(0)
