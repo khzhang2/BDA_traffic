@@ -17,11 +17,11 @@ class traff_net_reg(nn.Module):
         self.lstm = nn.LSTM(inp_dim, hid_dim, layers, dropout=0.3, batch_first=True)
         
         self.fc = nn.Sequential(
-            nn.Linear(seq_len, hid_dim*12),
+            nn.Linear(seq_len, hid_dim),
             nn.ReLU(),
-            nn.Linear(hid_dim*12, hid_dim*2),
+            nn.Linear(hid_dim, hid_dim),
             nn.ReLU(),
-            nn.Linear(hid_dim*2, out_dim)
+            nn.Linear(hid_dim, out_dim)
         )  # regression
     
     def forward(self, x):
@@ -72,7 +72,7 @@ class traff_net_clf(nn.Module):
 
 def mape_loss_func(preds, labels, m):
     mask = preds > m
-    return np.mean(np.fabs(labels[mask]-preds[mask])/labels[mask])
+    return np.mean(eliminate_nan(np.fabs(labels[mask]-preds[mask])/labels[mask]))
 
 def smape_loss_func(preds, labels, m):
     mask= preds > m
@@ -89,6 +89,7 @@ def nrmse_loss_func(preds, labels, m):
 def eliminate_nan(b):
     a = np.array(b)
     c = a[~np.isnan(a)]
+    c = c[~np.isinf(c)]
     return c
 
 
