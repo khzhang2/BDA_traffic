@@ -8,7 +8,62 @@ from torch import nn
 import torch.nn.functional as F
 
 
+class traff_net_reg(nn.Module):
+    def __init__(self, seq_len, hid_dim=12, layers=3):
+        super(traff_net_reg, self).__init__()
 
+        self.seq_len = seq_len
+        
+        self.fc = nn.Sequential(
+            nn.Linear(seq_len, seq_len*32),
+            nn.ReLU(),
+            nn.Linear(seq_len*32, 25+1),  # 101 classes (0-101)
+            nn.ReLU(),
+        )  # regression
+    
+    def forward(self, x):
+        # input: (batchsize, seq_len, input_dim)
+        # output: (batchsize, seq_len, hid_dim)
+#         ipdb.set_trace()
+        
+        y = nn.Flatten()(x)
+        y = self.fc(y)  # fully connected layer
+#         y = F.log_softmax(y, dim=1)
+        y = nn.ReLU()(y+nn.Flatten()(x))
+        return y
+
+
+class traff_net_clf(nn.Module):
+    def __init__(self, seq_len, hid_dim=12, layers=3):
+        super(traff_net_clf, self).__init__()
+
+        self.seq_len = seq_len
+        
+        self.fc = nn.Sequential(
+            nn.Linear(seq_len, seq_len*32),
+            nn.ReLU(),
+            nn.Linear(seq_len*32, seq_len*64),
+            nn.ReLU(),
+            nn.Linear(seq_len*64, seq_len*32),
+            nn.ReLU(),
+            nn.Linear(seq_len*32, seq_len*64),
+            nn.ReLU(),
+            nn.Linear(seq_len*64, seq_len*32),
+            nn.ReLU(),
+            nn.Linear(seq_len*32, 25+1),  # 101 classes (0-101)
+            nn.ReLU(),
+        )  # regression
+    
+    def forward(self, x):
+        # input: (batchsize, seq_len, input_dim)
+        # output: (batchsize, seq_len, hid_dim)
+#         ipdb.set_trace()
+        
+        y = nn.Flatten()(x)
+        y = self.fc(y)  # fully connected layer
+#         y = F.log_softmax(y, dim=1)
+        # y = nn.ReLU()(y+nn.Flatten()(x))
+        return y
 
 
 def mape_loss_func(preds, labels, m):
@@ -25,7 +80,7 @@ def mae_loss_func(preds, labels, m):
 
 def nrmse_loss_func(preds, labels, m):
     mask= labels > m
-    return np.sqrt(np.sum((preds[mask] - labels[mask])**2)/preds[mask].flatten().shape[0])/(preds[mask].max() - preds[mask].min())
+    return np.sqrt(np.sum((preds[mask] - labels[mask])**2)/preds[mask].flatten().shape[0])/(labels[mask].max() - labels[mask].min())
 
 def eliminate_nan(b):
     a = np.array(b)
@@ -47,7 +102,7 @@ def get_class(v):
         v_cls = np.zeros_like(v)
         for i in range(v.shape[0]):
             for j in range(v.shape[1]):
-                v_cls[i, j] = int(np.floor(v[i, j]*100))//1
+                v_cls[i, j] = int(np.floor(v[i, j]*100))//4
         return v_cls
     except:
     #     None
@@ -55,7 +110,7 @@ def get_class(v):
         v_cls = torch.zeros_like(v)
         for i in range(v.shape[0]):
             for j in range(v.shape[1]):
-                v_cls[i, j] = int(torch.floor(v[i, j]*100))//1
+                v_cls[i, j] = int(torch.floor(v[i, j]*100))//4
         return v_cls
 
 
@@ -115,7 +170,7 @@ def load_data(if_weekday=1, if_interdet=1):
         tar_data = np.zeros([to_date - from_date, 96, 10])  # num_days, time_seg_per_day, num_dets
 
     # choosing date, 
-    weekdays = np.array([0,1,2,3,6,7,8,9,10])
+    weekdays = np.array([6,7,8,9,10])
     weekends = np.array([4,5,11])
     day_type = weekdays if if_weekday else weekends
     src_data = src_data[day_type, :, :]
