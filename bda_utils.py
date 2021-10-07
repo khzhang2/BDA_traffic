@@ -9,27 +9,31 @@ import torch.nn.functional as F
 
 
 class traff_net_reg(nn.Module):
-    def __init__(self, seq_len, hid_dim=12, layers=3):
+    def __init__(self, inp_dim, out_dim, seq_len, hid_dim=12, layers=3):
         super(traff_net_reg, self).__init__()
 
-        self.seq_len = seq_len
+        self.out_dim = out_dim
+        
+        self.lstm = nn.LSTM(inp_dim, hid_dim, layers, dropout=0.3, batch_first=True)
         
         self.fc = nn.Sequential(
-            nn.Linear(seq_len, seq_len*32),
+            nn.Linear(seq_len, hid_dim*12),
             nn.ReLU(),
-            nn.Linear(seq_len*32, 25+1),  # 101 classes (0-101)
+            nn.Linear(hid_dim*12, hid_dim*2),
             nn.ReLU(),
+            nn.Linear(hid_dim*2, out_dim)
         )  # regression
     
     def forward(self, x):
         # input: (batchsize, seq_len, input_dim)
         # output: (batchsize, seq_len, hid_dim)
 #         ipdb.set_trace()
+#         y = self.lstm(x)[0]  # y, (h, c) = self.rnn(x)
         
         y = nn.Flatten()(x)
+        
         y = self.fc(y)  # fully connected layer
-#         y = F.log_softmax(y, dim=1)
-        y = nn.ReLU()(y+nn.Flatten()(x))
+        
         return y
 
 
@@ -50,7 +54,7 @@ class traff_net_clf(nn.Module):
             nn.ReLU(),
             nn.Linear(seq_len*64, seq_len*32),
             nn.ReLU(),
-            nn.Linear(seq_len*32, 25+1),  # 101 classes (0-101)
+            nn.Linear(seq_len*32, 100+1),  # 101 classes (0-101)
             nn.ReLU(),
         )  # regression
     
@@ -67,19 +71,19 @@ class traff_net_clf(nn.Module):
 
 
 def mape_loss_func(preds, labels, m):
-    mask = labels > m
+    mask = preds > m
     return np.mean(np.fabs(labels[mask]-preds[mask])/labels[mask])
 
 def smape_loss_func(preds, labels, m):
-    mask= labels > m
+    mask= preds > m
     return np.mean(2*np.fabs(labels[mask]-preds[mask])/(np.fabs(labels[mask])+np.fabs(preds[mask])))
 
 def mae_loss_func(preds, labels, m):
-    mask= labels > m
+    mask= preds > m
     return np.mean(np.fabs((labels[mask]-preds[mask])))
 
 def nrmse_loss_func(preds, labels, m):
-    mask= labels > m
+    mask= preds > m
     return np.sqrt(np.sum((preds[mask] - labels[mask])**2)/preds[mask].flatten().shape[0])/(labels[mask].max() - labels[mask].min())
 
 def eliminate_nan(b):
@@ -102,15 +106,14 @@ def get_class(v):
         v_cls = np.zeros_like(v)
         for i in range(v.shape[0]):
             for j in range(v.shape[1]):
-                v_cls[i, j] = int(np.floor(v[i, j]*100))//4
+                v_cls[i, j] = int(np.floor(v[i, j]*100))//1
         return v_cls
     except:
     #     None
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         v_cls = torch.zeros_like(v)
         for i in range(v.shape[0]):
             for j in range(v.shape[1]):
-                v_cls[i, j] = int(torch.floor(v[i, j]*100))//4
+                v_cls[i, j] = int(torch.floor(v[i, j]*100))//1
         return v_cls
 
 
