@@ -214,5 +214,11 @@ def save_np(array, name):
     np.savetxt(name, array, delimiter=',')
 
 
+def save_model(net, name):
+    num_fold = len(next(iter(os.walk('./model/')))[1])
+    os.mkdir('./model/run%i'%(num_fold+1))
+    torch.save(net.state_dict(), './model/run%i/%s.pth'%(num_fold+1, name))
+
+    
 def get_num():
     return len(next(iter(os.walk('./outputs/BDA/')))[2])
