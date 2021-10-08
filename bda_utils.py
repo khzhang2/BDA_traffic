@@ -9,19 +9,20 @@ import torch.nn.functional as F
 
 
 class traff_net_reg(nn.Module):
-    def __init__(self, inp_dim, out_dim, seq_len, hid_dim=12, layers=3):
+    def __init__(self, inp_dim, out_dim, seq_len, label_seq_len, hid_dim=12, layers=3):
         super(traff_net_reg, self).__init__()
 
         self.out_dim = out_dim
+        self.label_seq_len = label_seq_len
         
         self.lstm = nn.LSTM(inp_dim, hid_dim, layers, dropout=0.3, batch_first=True)
         
         self.fc = nn.Sequential(
-            nn.Linear(seq_len, hid_dim),
+            nn.Linear(seq_len, hid_dim*label_seq_len),
             nn.ReLU(),
-            nn.Linear(hid_dim, hid_dim),
+            nn.Linear(hid_dim*label_seq_len, hid_dim*label_seq_len),
             nn.ReLU(),
-            nn.Linear(hid_dim, out_dim)
+            nn.Linear(hid_dim*label_seq_len, out_dim*label_seq_len)
         )  # regression
     
     def forward(self, x):
@@ -34,7 +35,7 @@ class traff_net_reg(nn.Module):
         
         y = self.fc(y)  # fully connected layer
         
-        return y
+        return y.view(-1, self.label_seq_len, self.out_dim)
 
 
 class traff_net_clf(nn.Module):
@@ -174,7 +175,7 @@ def load_data(if_weekday=1, if_interdet=1):
         tar_data = np.zeros([to_date - from_date, 96, 10])  # num_days, time_seg_per_day, num_dets
 
     # choosing date, 
-    weekdays = np.array([6,7,8,9,10])
+    weekdays = np.array([8,9,10])
     weekends = np.array([4,5,11])
     day_type = weekdays if if_weekday else weekends
     src_data = src_data[day_type, :, :]
