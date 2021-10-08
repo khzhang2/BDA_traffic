@@ -7,3 +7,5 @@
 .ipynb_checkpoints/illustrations-checkpoint.ipynb
 runs/
 __pycache__/
+outputs/
+outputs/BDA/
