@@ -6,6 +6,7 @@
 .ipynb_checkpoints/base_regression-checkpoint.ipynb
 .ipynb_checkpoints/illustrations-checkpoint.ipynb
 runs/
+runs_base/
 __pycache__/
 outputs/
 outputs/BDA/
