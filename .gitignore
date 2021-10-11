@@ -7,3 +7,4 @@ outputs/
 outputs/BDA/
 .ipynb_checkpoints/base_HA-checkpoint.ipynb
 .ipynb_checkpoints/base_regression_src_and_tar-checkpoint.ipynb
+base_HA.ipynb
