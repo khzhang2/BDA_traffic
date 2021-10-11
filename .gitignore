@@ -1,12 +1,9 @@
 
-.ipynb_checkpoints/BDA-checkpoint.ipynb
-.ipynb_checkpoints/Get_Sensor_Data-checkpoint.ipynb
-.ipynb_checkpoints/TCA_EMD-checkpoint.ipynb
-.ipynb_checkpoints/BDA_reg-checkpoint.ipynb
-.ipynb_checkpoints/base_regression-checkpoint.ipynb
-.ipynb_checkpoints/illustrations-checkpoint.ipynb
+.ipynb_checkpoints/
 runs/
 runs_base/
 __pycache__/
 outputs/
 outputs/BDA/
+.ipynb_checkpoints/base_HA-checkpoint.ipynb
+.ipynb_checkpoints/base_regression_src_and_tar-checkpoint.ipynb
