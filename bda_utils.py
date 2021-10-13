@@ -119,6 +119,12 @@ def get_class(v):
         return v_cls
 
 
+def normalize2D_tSNE(V):
+    V = np.array(V)
+    return ( V ) / ( V.max(0) - V.min(0) ), V.min(0), V.max(0)
+
+
+
 def normalize2D(V):
     V = np.array(V)
     return ( V - V.min(0) ) / ( V.max(0) - V.min(0) ), V.min(0), V.max(0)
