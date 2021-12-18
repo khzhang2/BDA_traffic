@@ -1,0 +1,2 @@
+,inp_dim,label_dim,label_seq_len,seq_len,reduced_dim,hid_dim,layers,lamb,MU,bda_dim
+Values,1,1,8,12,4,12,1,1,0.5,4
