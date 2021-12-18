@@ -1,9 +1,5 @@
 
 .ipynb_checkpoints/
-runs/
-runs_base/
 __pycache__/
-outputs/
-outputs/BDA/
 .ipynb_checkpoints/base_HA-checkpoint.ipynb
 .ipynb_checkpoints/base_regression_src_and_tar-checkpoint.ipynb
