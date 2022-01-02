@@ -87,6 +87,10 @@ def nrmse_loss_func(preds, labels, m):
     mask= preds > m
     return np.sqrt(np.sum((preds[mask] - labels[mask])**2)/preds[mask].flatten().shape[0])/(labels[mask].max() - labels[mask].min())
 
+def nmae_loss_func(preds, labels, m):
+    mask= preds > m
+    return np.mean(np.fabs((labels[mask]-preds[mask]))) / (labels[mask].max() - labels[mask].min())
+
 def eliminate_nan(b):
     a = np.array(b)
     c = a[~np.isnan(a)]
