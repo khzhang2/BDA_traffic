@@ -68,10 +68,10 @@ def main(rs, det):
     Xt_3d, Yt_3d = bda_utils.sliding_window(Xt, Xt, seq_len, label_seq_len)
     Ys_3d = Ys_3d[:, label_seq_len-1:, :]
     Yt_3d = Yt_3d[:, label_seq_len-1:, :]
-    print(Xs_3d.shape)
-    print(Ys_3d.shape)
-    print(Xt_3d.shape)
-    print(Yt_3d.shape)
+    # print(Xs_3d.shape)
+    # print(Ys_3d.shape)
+    # print(Xt_3d.shape)
+    # print(Yt_3d.shape)
 
 
     # In[5]:
@@ -128,12 +128,12 @@ def main(rs, det):
     # In[6]:
 
 
-    print(Xs_train.shape)
-    print(Ys_train.shape)
-    print(Xt_valid.shape)
-    print(Xt_train.shape)
-    print(Yt_valid.shape)
-    print(Yt_train.shape)
+    # print(Xs_train.shape)
+    # print(Ys_train.shape)
+    # print(Xt_valid.shape)
+    # print(Xt_train.shape)
+    # print(Yt_valid.shape)
+    # print(Yt_train.shape)
 
 
     # In[7]:
@@ -145,7 +145,7 @@ def main(rs, det):
     # In[8]:
 
 
-    regr = xgb.XGBRegressor(tree_method="gpu_hist", random_state=rs)  # XGBoost
+    regr = xgb.XGBRegressor(tree_method="hist", random_state=rs)  # XGBoost
 
 
     # In[9]:
@@ -172,13 +172,13 @@ def main(rs, det):
     g_t = Yt_valid.flatten()
     pred = regr.predict(Xt_valid)
 
-    plt.figure(figsize=[16,4])
-    plt.plot(g_t, label='label')
-    plt.plot(pred, label='predict')
-    plt.legend()
+    # plt.figure(figsize=[16,4])
+    # plt.plot(g_t, label='label')
+    # plt.plot(pred, label='predict')
+    # plt.legend()
 
-    bda_utils.save_np(g_t, './runs_base/base_data_plot/g_t_base_XGB.csv')
-    bda_utils.save_np(pred, './runs_base/base_data_plot/pred_base_XGB.csv')
+    # bda_utils.save_np(g_t, './runs_base/base_data_plot/g_t_base_XGB.csv')
+    # bda_utils.save_np(pred, './runs_base/base_data_plot/pred_base_XGB.csv')
 
 
     # In[18]:
@@ -189,23 +189,25 @@ def main(rs, det):
     mape = bda_utils.mape_loss_func(pred, g_t, 0)
     smape = bda_utils.smape_loss_func(pred, g_t, 0)
     mae = bda_utils.mae_loss_func(pred, g_t, 0)
+    nmae = bda_utils.nmae_loss_func(pred, g_t, 0)
 
-    return nrmse, mape, smape, mae
+    return nrmse, mape, smape, mae, nmae
 
 mean_data = []
 std_data = []
 for det in range(10):
     data_det = []
     for rs in range(20):
-        nrmse, mape, smape, mae = main(rs, det)
-        data_det.append([nrmse, mape, smape, mae])
+        print(det, rs)
+        nrmse, mape, smape, mae, nmae = main(rs, det)
+        data_det.append([nrmse, mape, smape, mae, nmae])
 
     data_det = pd.DataFrame(data_det)
     mean_data.append(list(data_det.mean().values))
     std_data.append(list(data_det.std().values))
 
-pd.DataFrame(mean_data, columns=['nrmse', 'mape', 'smape', 'mae']).to_csv('./table_data/base_XGB_mean.csv')
-pd.DataFrame(std_data, columns=['nrmse', 'mape', 'smape', 'mae']).to_csv('./table_data/base_XGB_std.csv')
+pd.DataFrame(mean_data, columns=['nrmse', 'mape', 'smape', 'mae', 'nmae']).to_csv('./table_data/base_XGB_mean.csv')
+pd.DataFrame(std_data, columns=['nrmse', 'mape', 'smape', 'mae', 'nmae']).to_csv('./table_data/base_XGB_std.csv')
 
 
 
