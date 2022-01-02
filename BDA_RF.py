@@ -145,7 +145,7 @@ def main(rs, det):
             Y_tar_pseudo = None
             Xs_new = None
             for t in range(self.T):
-                print('\tStarting iter %i'%t)
+                # print('\tStarting iter %i'%t)
                 N = 0
                 M0 = e * e.T * len(C)
     #             ipdb.set_trace()
@@ -206,7 +206,7 @@ def main(rs, det):
                 Y_tar_pseudo = model.predict(Xt_new)
     #             ipdb.set_trace()
                 acc = sklearn.metrics.mean_squared_error(Y_tar_pseudo, Yt)  # Yt is already in classes
-                print(acc)
+                # print(acc)
 
 
             return Xs_new, Xt_new, A  #, acc, Y_tar_pseudo, list_acc
@@ -289,10 +289,10 @@ def main(rs, det):
     Xt_3d, Yt_3d = bda_utils.sliding_window(Xt, Xt, seq_len, label_seq_len)
     Ys_3d = Ys_3d[:, label_seq_len-1:, :]
     Yt_3d = Yt_3d[:, label_seq_len-1:, :]
-    print(Xs_3d.shape)
-    print(Ys_3d.shape)
-    print(Xt_3d.shape)
-    print(Yt_3d.shape)
+    # print(Xs_3d.shape)
+    # print(Ys_3d.shape)
+    # print(Xt_3d.shape)
+    # print(Yt_3d.shape)
 
 
     # In[11]:
@@ -309,7 +309,7 @@ def main(rs, det):
     Yt_train_3d = []
 
     for i in range(Xs_3d.shape[2]):
-        print('Starting det %i'%i)
+        # print('Starting det %i'%i)
         bda = BDA(kernel_type='linear', dim=seq_len-reduced_dim, lamb=lamb, mu=MU, gamma=1, T=2)  # T is iteration time
         Xs_new, Xt_new, A = bda.fit(
             Xs_3d[:, :, i], bda_utils.get_class(Ys_3d[:, :, i]), Xt_3d[:, :, i], bda_utils.get_class(Yt_3d[:, :, i])
@@ -319,8 +319,8 @@ def main(rs, det):
         Xs_new, Xs_new_min, Xs_new_max = bda_utils.normalize2D(Xs_new)
         Xt_new, Xt_new_min, Xt_new_max = bda_utils.normalize2D(Xt_new)
         
-        print(Xs_new.shape)
-        print(Xt_new.shape)
+        # print(Xs_new.shape)
+        # print(Xt_new.shape)
 
         day_train_t = 1
         Xs_train = Xs_new.copy()
@@ -331,18 +331,18 @@ def main(rs, det):
         Yt_train = Yt_3d[:, :, i].copy()[:int(96*day_train_t), :]
         
 
-    print('Time spent:%.5f'%(time.time()-t_s))
+    # print('Time spent:%.5f'%(time.time()-t_s))
 
 
     # In[12]:
 
 
-    print(Xs_train.shape)
-    print(Ys_train.shape)
-    print(Xt_valid.shape)
-    print(Xt_train.shape)
-    print(Yt_valid.shape)
-    print(Yt_train.shape)
+    # print(Xs_train.shape)
+    # print(Ys_train.shape)
+    # print(Xt_valid.shape)
+    # print(Xt_train.shape)
+    # print(Yt_valid.shape)
+    # print(Yt_train.shape)
 
 
     # In[13]:
@@ -388,22 +388,24 @@ def main(rs, det):
     mape = bda_utils.mape_loss_func(pred, g_t, 0)
     smape = bda_utils.smape_loss_func(pred, g_t, 0)
     mae = bda_utils.mae_loss_func(pred, g_t, 0)
+    nmae = bda_utils.nmae_loss_func(pred, g_t, 0)
 
-    return nrmse, mape, smape, mae
+    return nrmse, mape, smape, mae, nmae
 
 mean_data = []
 std_data = []
 for det in range(10):
     data_det = []
     for rs in range(20):
-        nrmse, mape, smape, mae = main(rs, det)
-        data_det.append([nrmse, mape, smape, mae])
+        print(det, rs)
+        nrmse, mape, smape, mae, nmae = main(rs, det)
+        data_det.append([nrmse, mape, smape, mae, nmae])
 
     data_det = pd.DataFrame(data_det)
     mean_data.append(list(data_det.mean().values))
     std_data.append(list(data_det.std().values))
 
-pd.DataFrame(mean_data, columns=['nrmse', 'mape', 'smape', 'mae']).to_csv('./table_data/bda_RF_mean.csv')
-pd.DataFrame(std_data, columns=['nrmse', 'mape', 'smape', 'mae']).to_csv('./table_data/bda_RF_std.csv')
+pd.DataFrame(mean_data, columns=['nrmse', 'mape', 'smape', 'mae', 'nmae']).to_csv('./table_data/bda_RF_mean.csv')
+pd.DataFrame(std_data, columns=['nrmse', 'mape', 'smape', 'mae', 'nmae']).to_csv('./table_data/bda_RF_std.csv')
 
 
