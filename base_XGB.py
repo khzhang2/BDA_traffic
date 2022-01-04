@@ -145,8 +145,16 @@ def main(rs, det):
     # In[8]:
 
 
-    regr = xgb.XGBRegressor(tree_method="hist", random_state=rs)  # XGBoost
-
+    regr = xgb.XGBRegressor(base_score=0.5, booster='gbtree', 
+                        colsample_bylevel=1, colsample_bynode=1, 
+                        colsample_bytree=1, gamma=0, importance_type='gain', 
+                        learning_rate=0.1, max_delta_step=0, max_depth=3, 
+                        min_child_weight=1, missing=1, n_estimators=100, 
+                        n_jobs=1, nthread=None, objective='reg:squarederror', 
+                        random_state=1, reg_alpha=0, reg_lambda=1, 
+                        scale_pos_weight=1, seed=None, silent=None, 
+                        subsample=1, verbosity=1, tree_method="hist"
+                       )
 
     # In[9]:
 
