@@ -169,8 +169,10 @@ def sliding_window(T, T_org, seq_len, label_seq_len):  # was: (T, T_org, seq_len
 
 def load_data(if_weekday=1, if_interdet=1):
     file_set_2020 = [files for root, dirs, files in os.walk('./data/')][0]
+    if '.DS_Store' in file_set_2020:
+        file_set_2020.remove('.DS_Store')
     file_set_2020.sort()
-    file_set_2020 = file_set_2020[1::2]
+    file_set_2020 = file_set_2020[0::2]
 
     # file_set_2020 = file_set_2020[2::2]
 
