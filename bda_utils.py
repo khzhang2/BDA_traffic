@@ -101,6 +101,7 @@ def eliminate_nan(b):
 def get_class(v):
     # v is 1-d or 2-d array
     # we set that there are 100 classes between 0 and 1
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if len(v.shape) == 1:
         try:
             v = v.reshape(-1, v.shape[0])
@@ -113,14 +114,14 @@ def get_class(v):
         for i in range(v.shape[0]):
             for j in range(v.shape[1]):
                 v_cls[i, j] = int(np.floor(v[i, j]*100))//1
-        return v_cls
+        return torch.tensor(v_cls, dtype=torch.float32).to(device)
     except:
-    #     None
-        v_cls = torch.zeros_like(v)
-        for i in range(v.shape[0]):
-            for j in range(v.shape[1]):
-                v_cls[i, j] = int(torch.floor(v[i, j]*100))//1
-        return v_cls
+        None
+        # v_cls = torch.zeros_like(v)
+        # for i in range(v.shape[0]):
+        #     for j in range(v.shape[1]):
+        #         v_cls[i, j] = int(torch.floor(v[i, j]*100))//1
+        # return torch.tensor(v_cls, dtype=torch.float32).to(device)
 
 
 def normalize2D_tSNE(V):
@@ -230,8 +231,7 @@ def save_np(array, name):
     np.savetxt(name, array, delimiter=',')
 
 
-def save_model(net, name):
-    num_fold = len(next(iter(os.walk('./runs/')))[1])
+def save_model(net, name, num_fold):
     try:
         torch.save(net.state_dict(), './runs/run%i/%s.pth'%(num_fold, name))
     except:
